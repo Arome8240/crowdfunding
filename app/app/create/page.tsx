@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 import { createCampaign } from "../../lib/stacks";
 import {
   ArrowLeft,
@@ -21,12 +22,11 @@ export default function CreateCampaign() {
     durationBlocks: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
     setLoading(true);
+    const toastId = toast.loading("Preparing transaction…");
     try {
       const deadlineOffset = parseInt(form.durationBlocks);
       const goalMicroStx = Math.floor(parseFloat(form.goal) * 1_000_000);
@@ -50,9 +50,10 @@ export default function CreateCampaign() {
         goalMicroStx,
         deadline,
       );
+      toast.success("Campaign submitted!", { id: toastId });
       router.push("/");
     } catch (err: any) {
-      setError(err.message ?? "Something went wrong.");
+      toast.error(err.message ?? "Something went wrong.", { id: toastId });
     } finally {
       setLoading(false);
     }
@@ -148,12 +149,6 @@ export default function CreateCampaign() {
             </div>
           </div>
         ))}
-
-        {error && (
-          <p className="text-sm text-red-400 bg-red-400/10 border border-red-400/20 rounded-xl px-4 py-3">
-            {error}
-          </p>
-        )}
 
         <button
           type="submit"

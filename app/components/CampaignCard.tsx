@@ -1,6 +1,7 @@
 "use client";
 import { fundCampaign } from "../lib/stacks";
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   CurrencyDollar,
   Timer,
@@ -34,10 +35,17 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
     if (!amount) return;
     setLoading(true);
     const microStx = Math.floor(parseFloat(amount) * 1_000_000);
-    await fundCampaign(campaign.id, microStx);
-    setLoading(false);
-    setShowInput(false);
-    setAmount("");
+    const toastId = toast.loading("Awaiting wallet approval…");
+    try {
+      await fundCampaign(campaign.id, microStx);
+      toast.success("Transaction submitted!", { id: toastId });
+      setShowInput(false);
+      setAmount("");
+    } catch {
+      toast.error("Transaction failed or rejected.", { id: toastId });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

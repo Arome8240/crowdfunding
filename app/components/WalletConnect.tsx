@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { SignOut, Lightning } from "@phosphor-icons/react/dist/ssr";
 
 const ADDR_KEY = "stx_address";
@@ -21,27 +22,36 @@ export default function WalletConnect() {
   const connect = async () => {
     const leather = (window as any).LeatherProvider;
     if (!leather) {
-      alert("Leather wallet not found. Please install it from leather.app");
+      toast.error("Leather wallet not found. Install it from leather.app");
       return;
     }
-    const res = await leather.request("getAddresses");
-    const addresses = res?.result?.addresses ?? [];
-    // STX addresses start with SP (mainnet) or SM (testnet)
-    const stxAddr =
-      addresses.find((a: any) => a.symbol === "STX")?.address ??
-      addresses.find(
-        (a: any) => a.address?.startsWith("SP") || a.address?.startsWith("SM"),
-      )?.address;
-    if (!stxAddr) return;
-    localStorage.setItem(ADDR_KEY, stxAddr);
-    connectedAddress = stxAddr;
-    setAddress(stxAddr);
+    try {
+      const res = await leather.request("getAddresses");
+      const addresses = res?.result?.addresses ?? [];
+      const stxAddr =
+        addresses.find((a: any) => a.symbol === "STX")?.address ??
+        addresses.find(
+          (a: any) =>
+            a.address?.startsWith("SP") || a.address?.startsWith("SM"),
+        )?.address;
+      if (!stxAddr) {
+        toast.error("No STX address found in wallet.");
+        return;
+      }
+      localStorage.setItem(ADDR_KEY, stxAddr);
+      connectedAddress = stxAddr;
+      setAddress(stxAddr);
+      toast.success("Wallet connected");
+    } catch {
+      toast.error("Failed to connect wallet.");
+    }
   };
 
   const disconnect = () => {
     localStorage.removeItem(ADDR_KEY);
     connectedAddress = null;
     setAddress(null);
+    toast("Wallet disconnected");
   };
 
   if (address) {
