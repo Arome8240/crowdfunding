@@ -58,7 +58,19 @@ export async function getCampaign(id: number) {
     network: NETWORK,
     senderAddress: CONTRACT_ADDRESS,
   });
-  return cvToValue(result, true);
+  const raw = cvToValue(result, true);
+  // get-campaign returns an optional tuple — unwrap the value if needed
+  const data = raw?.value ?? raw;
+  if (!data) return null;
+  return {
+    title: data.title?.value ?? data.title ?? "",
+    description: data.description?.value ?? data.description ?? "",
+    goal: Number(data.goal?.value ?? data.goal ?? 0),
+    raised: Number(data.raised?.value ?? data.raised ?? 0),
+    deadline: Number(data.deadline?.value ?? data.deadline ?? 0),
+    claimed: data.claimed?.value ?? data.claimed ?? false,
+    creator: data.creator?.value ?? data.creator ?? "",
+  };
 }
 
 export async function getCampaignCount(): Promise<number> {
