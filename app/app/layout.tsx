@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Stacks Crowdfunding",
@@ -12,15 +13,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        style={{
-          fontFamily: "sans-serif",
-          maxWidth: 800,
-          margin: "0 auto",
-          padding: "0 16px",
-        }}
-      >
-        {children}
+      <body className="bg-[#0f0f13] text-white min-h-screen font-sans antialiased">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">{children}</div>
       </body>
     </html>
   );
