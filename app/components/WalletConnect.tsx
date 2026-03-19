@@ -25,10 +25,13 @@ export default function WalletConnect() {
       return;
     }
     const res = await leather.request("getAddresses");
+    const addresses = res?.result?.addresses ?? [];
+    // STX addresses start with SP (mainnet) or SM (testnet)
     const stxAddr =
-      res?.result?.addresses?.find(
-        (a: any) => a.type === "p2wpkh" || a.symbol === "STX",
-      )?.address ?? res?.result?.addresses?.[0]?.address;
+      addresses.find((a: any) => a.symbol === "STX")?.address ??
+      addresses.find(
+        (a: any) => a.address?.startsWith("SP") || a.address?.startsWith("SM"),
+      )?.address;
     if (!stxAddr) return;
     localStorage.setItem(ADDR_KEY, stxAddr);
     connectedAddress = stxAddr;
