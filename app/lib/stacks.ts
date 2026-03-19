@@ -1,27 +1,27 @@
 import {
-  makeContractCall,
   uintCV,
   stringUtf8CV,
-  standardPrincipalCV,
-  PostConditionMode,
-  AnchorMode,
   fetchCallReadOnlyFunction,
   cvToValue,
+  cvToHex,
 } from "@stacks/transactions";
 import { STACKS_MAINNET } from "@stacks/network";
-import { openContractCall } from "@stacks/connect";
 
 export const CONTRACT_ADDRESS = "SP25H46Z9YCAB1TW93YG42WM0SREG9SC5EZB977TJ";
 export const CONTRACT_NAME = "crowdfunding";
 export const NETWORK = STACKS_MAINNET;
 
-const BASE = {
-  contractAddress: CONTRACT_ADDRESS,
-  contractName: CONTRACT_NAME,
-  network: NETWORK,
-  anchorMode: AnchorMode.Any,
-  postConditionMode: PostConditionMode.Allow,
-};
+async function leatherCall(functionName: string, functionArgs: any[]) {
+  const leather = (window as any).LeatherProvider;
+  if (!leather) throw new Error("Leather wallet not found.");
+
+  return leather.request("stx_callContract", {
+    contract: `${CONTRACT_ADDRESS}.${CONTRACT_NAME}`,
+    functionName,
+    functionArgs: functionArgs.map((cv) => cvToHex(cv)),
+    network: "mainnet",
+  });
+}
 
 export async function createCampaign(
   title: string,
@@ -29,40 +29,24 @@ export async function createCampaign(
   goalMicroStx: number,
   deadline: number,
 ) {
-  await openContractCall({
-    ...BASE,
-    functionName: "create-campaign",
-    functionArgs: [
-      stringUtf8CV(title),
-      stringUtf8CV(description),
-      uintCV(goalMicroStx),
-      uintCV(deadline),
-    ],
-  });
+  return leatherCall("create-campaign", [
+    stringUtf8CV(title),
+    stringUtf8CV(description),
+    uintCV(goalMicroStx),
+    uintCV(deadline),
+  ]);
 }
 
 export async function fundCampaign(campaignId: number, amountMicroStx: number) {
-  await openContractCall({
-    ...BASE,
-    functionName: "fund",
-    functionArgs: [uintCV(campaignId), uintCV(amountMicroStx)],
-  });
+  return leatherCall("fund", [uintCV(campaignId), uintCV(amountMicroStx)]);
 }
 
 export async function claimFunds(campaignId: number) {
-  await openContractCall({
-    ...BASE,
-    functionName: "claim",
-    functionArgs: [uintCV(campaignId)],
-  });
+  return leatherCall("claim", [uintCV(campaignId)]);
 }
 
 export async function refund(campaignId: number) {
-  await openContractCall({
-    ...BASE,
-    functionName: "refund",
-    functionArgs: [uintCV(campaignId)],
-  });
+  return leatherCall("refund", [uintCV(campaignId)]);
 }
 
 export async function getCampaign(id: number) {

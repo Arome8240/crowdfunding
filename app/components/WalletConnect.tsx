@@ -1,33 +1,43 @@
 "use client";
-import { AppConfig, UserSession, showConnect } from "@stacks/connect";
 import { useState, useEffect } from "react";
-import { Wallet, SignOut, Lightning } from "@phosphor-icons/react";
+import { SignOut, Lightning } from "@phosphor-icons/react/dist/ssr";
 
-const appConfig = new AppConfig(["store_write", "publish_data"]);
-export const userSession = new UserSession({ appConfig });
+const ADDR_KEY = "stx_address";
+
+export let connectedAddress: string | null =
+  typeof window !== "undefined" ? localStorage.getItem(ADDR_KEY) : null;
 
 export default function WalletConnect() {
   const [address, setAddress] = useState<string | null>(null);
 
   useEffect(() => {
-    if (userSession.isUserSignedIn()) {
-      const data = userSession.loadUserData();
-      setAddress(data.profile.stxAddress.mainnet);
+    const saved = localStorage.getItem(ADDR_KEY);
+    if (saved) {
+      setAddress(saved);
+      connectedAddress = saved;
     }
   }, []);
 
-  const connect = () =>
-    showConnect({
-      appDetails: { name: "Crowdfunding", icon: "/favicon.ico" },
-      userSession,
-      onFinish: () => {
-        const data = userSession.loadUserData();
-        setAddress(data.profile.stxAddress.mainnet);
-      },
-    });
+  const connect = async () => {
+    const leather = (window as any).LeatherProvider;
+    if (!leather) {
+      alert("Leather wallet not found. Please install it from leather.app");
+      return;
+    }
+    const res = await leather.request("getAddresses");
+    const stxAddr =
+      res?.result?.addresses?.find(
+        (a: any) => a.type === "p2wpkh" || a.symbol === "STX",
+      )?.address ?? res?.result?.addresses?.[0]?.address;
+    if (!stxAddr) return;
+    localStorage.setItem(ADDR_KEY, stxAddr);
+    connectedAddress = stxAddr;
+    setAddress(stxAddr);
+  };
 
   const disconnect = () => {
-    userSession.signUserOut();
+    localStorage.removeItem(ADDR_KEY);
+    connectedAddress = null;
     setAddress(null);
   };
 
