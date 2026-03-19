@@ -41,7 +41,7 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
   };
 
   return (
-    <div className="group bg-white/[0.03] border border-white/10 rounded-2xl p-6 hover:border-violet-500/40 hover:bg-white/[0.05] transition-all duration-300">
+    <div className="group bg-white/3 border border-white/10 rounded-2xl p-6 hover:border-violet-500/40 hover:bg-white/5 transition-all duration-300">
       <div className="flex items-start justify-between gap-4 mb-3">
         <h3 className="text-lg font-semibold text-white leading-snug">
           {campaign.title}
@@ -69,7 +69,7 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
         </div>
         <div className="h-2 bg-white/5 rounded-full overflow-hidden">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-500"
+            className="h-full rounded-full bg-linear-to-r from-violet-500 to-fuchsia-500 transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -86,7 +86,9 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
         </span>
         <span className="flex items-center gap-1">
           <User size={13} />
-          {campaign.creator.slice(0, 8)}…{campaign.creator.slice(-4)}
+          {campaign.creator
+            ? `${campaign.creator.slice(0, 8)}…${campaign.creator.slice(-4)}`
+            : "Unknown"}
         </span>
       </div>
 
