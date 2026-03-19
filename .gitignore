@@ -1,0 +1,15 @@
+# Clarinet / Stacks
+.cache/
+settings/Mainnet.toml
+
+# Next.js
+app/.next/
+app/node_modules/
+app/.env*
+app/out/
+
+# General
+node_modules/
+*.env
+*.env.local
+.DS_Store

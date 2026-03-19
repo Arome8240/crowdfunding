@@ -1,0 +1,17 @@
+---
+id: 0
+name: Mainnet deployment
+network: mainnet
+stacks-node: "https://api.hiro.so"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - contract-publish:
+            contract-name: crowdfunding
+            expected-sender: SP25H46Z9YCAB1TW93YG42WM0SREG9SC5EZB977TJ
+            cost: 15000
+            path: contracts/crowdfunding.clar
+            anchor-block-only: true
+            clarity-version: 2
+      epoch: "2.5"
